@@ -1,5 +1,5 @@
-#ifndef __MCP2515_H
-#define	__MCP2515_H
+#ifndef MCP2515_H
+#define	MCP2515_H
 
 #pragma anon_unions
 #include "stm32f1xx_hal.h"
