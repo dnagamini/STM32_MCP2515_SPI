@@ -42,6 +42,8 @@
 #define MCP2515_RXF2SIDL	0x09
 #define MCP2515_RXF2EID8	0x0A
 #define MCP2515_RXF2EID0	0x0B
+#define MCP2515_BFPCTRL     0x0C
+#define MCP2515_TXRTSCTRL   0x0D
 #define MCP2515_CANSTAT		0x0E
 #define MCP2515_CANCTRL		0x0F
 
@@ -57,8 +59,8 @@
 #define MCP2515_RXF5SIDL	0x19
 #define MCP2515_RXF5EID8	0x1A
 #define MCP2515_RXF5EID0	0x1B
-#define MCP2515_TEC		0x1C
-#define MCP2515_REC		0x1D
+#define MCP2515_TEC		    0x1C
+#define MCP2515_REC		    0x1D
 
 #define MCP2515_RXM0SIDH	0x20
 #define MCP2515_RXM0SIDL	0x21
@@ -76,8 +78,11 @@
 #define MCP2515_EFLG		0x2D
 
 #define MCP2515_TXB0CTRL	0x30
+#define MCP2515_TXB0SIDH    0x31
 #define MCP2515_TXB1CTRL	0x40
+#define MCP2515_TXB1SIDH    0x41
 #define MCP2515_TXB2CTRL	0x50
+#define MCP2515_TXB2SIDH    0x51
 #define MCP2515_RXB0CTRL	0x60
 #define MCP2515_RXB0SIDH	0x61
 #define MCP2515_RXB1CTRL	0x70
@@ -87,6 +92,12 @@
 #define MSG_IN_RXB0             0x01
 #define MSG_IN_RXB1             0x02
 #define MSG_IN_BOTH_BUFFERS     0x03
+
+/* CANCTRL Register Values */
+#define MODE_NORMAL     0x00
+#define MODE_SLEEP      0x20
+#define MODE_CONFIG     0x80
+#define MODE_MASK       0xE0
 
 typedef union{
   struct{
@@ -213,7 +224,6 @@ typedef struct{
 bool MCP2515_Initialize(void);
 bool MCP2515_SetConfigMode(void);
 bool MCP2515_SetNormalMode(void);
-bool MCP2515_SetSleepMode(void);
 void MCP2515_Reset(void);
 uint8_t MCP2515_ReadByte (uint8_t address);
 void MCP2515_ReadRxSequence(uint8_t instruction, uint8_t *data, uint8_t length);
