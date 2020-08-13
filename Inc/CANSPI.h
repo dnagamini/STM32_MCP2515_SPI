@@ -1,7 +1,8 @@
 #ifndef CAN_SPI_H
 #define	CAN_SPI_H
 
-#include "stm32f1xx_hal.h"
+#include "main.h"
+#include "stdbool.h"
 
 typedef union {
   struct {
