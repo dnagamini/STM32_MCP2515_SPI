@@ -50,10 +50,12 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 uCAN_MSG txMessage;
 uCAN_MSG rxMessage;
-
-uint8_t uart_rx_data[1];
+// interrupt single byte receive
+uint8_t uart_rx_data;
+// buffer
 uint8_t uart_buffer_rx_data[TAM_MAX];
 uint8_t uart_buffer_pos = 0;
+// flags
 uint8_t receive_command_mode = 0;
 uint8_t command_received = 0;
 /* USER CODE END PV */
@@ -71,25 +73,20 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN 0 */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	HAL_UART_Transmit(&huart1, "0", 1, 100);
 	if(uart_rx_data == '*'){
-		HAL_UART_Transmit(&huart1, "1", 1, 100);
 		uart_buffer_rx_data[uart_buffer_pos] = '\0'; // end of string
 		command_received = 1;// command received, ready to process
 	}
 	else{
-		HAL_UART_Transmit(&huart1, "2", 1, 100);
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		uart_buffer_rx_data[uart_buffer_pos] = uart_rx_data;
 		if(uart_buffer_pos == TAM_MAX){
 			uart_buffer_pos = 0;
-			HAL_UART_Transmit(&huart1, "3", 1, 100);
 		}
 		else{
-			HAL_UART_Transmit(&huart1, "4", 1, 100);
 			uart_buffer_pos++;
 		}
-		HAL_UART_Transmit(&huart1, "5", 1, 100);
-		HAL_UART_Receive_IT(&huart1, uart_rx_data, 1); // receive next character
+		HAL_UART_Receive_IT(&huart1, &uart_rx_data, 1); // receive next character
 	}
 }
 
@@ -98,7 +95,7 @@ void process_bluetooth_command(){
 	HAL_UART_Transmit(&huart1, uart_buffer_rx_data, uart_buffer_pos, 100);
 	uart_buffer_pos = 0;
 
-	if(strncmp(uart_buffer_rx_data, "liga", 4) == 0){
+	if(strncmp(uart_buffer_rx_data, "#liga", 4) == 0){
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		HAL_UART_Transmit(&huart1, "ligado", 6, 100);
 	}
@@ -154,7 +151,7 @@ int main(void)
 
 	  if(command_received == 1){
 		  command_received = 0;
-		  process_bluetooth_command(uart_buffer_rx_data, uart_buffer_pos);
+		  process_bluetooth_command();
 		  receive_command_mode = 0;
 	  }
 
@@ -163,14 +160,15 @@ int main(void)
 		  // receive_CAN();
 		  HAL_UART_Transmit(&huart1, "PID 123", 7, 100);
 		  HAL_UART_Transmit(&huart1, "DATA 11 22 33 44 55 66 77 88", 28, 100);
-		  HAL_Delay(500);
+		  HAL_Delay(5000);
 
 		  if(USART1->SR & USART_SR_RXNE){ // if UART RX is not empty
-			  HAL_Delay(100);
+
+
 			  HAL_UART_Transmit(&huart1, "STM32 Listening ...", 19, 100);
+			  // HAL_Delay(100);
 			  receive_command_mode = 1; // stop CAN
-			  HAL_Delay(100);
-			  HAL_UART_Receive_IT(&huart1, uart_rx_data, 1); // call Interrupt
+			  HAL_UART_Receive_IT(&huart1, &uart_rx_data, 1); // call Interrupt
 		  }
 	  }
 
