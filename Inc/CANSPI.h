@@ -2,7 +2,6 @@
 #define	CAN_SPI_H
 
 #include "main.h"
-#include "stdbool.h"
 
 typedef union {
   struct {
