@@ -4,7 +4,6 @@
 #pragma anon_unions
 
 #include "main.h"
-#include "stdbool.h"
 
 /* MCP2515 SPI Instruction Set */
 #define MCP2515_RESET           0xC0
@@ -31,7 +30,7 @@
 #define MCP2515_RX_STATUS       0xB0
 #define MCP2515_BIT_MOD         0x05
 
-/* MCP25152515 Register Adresses */
+/* MCP2515 Register Addresses */
 #define MCP2515_RXF0SIDH	0x00
 #define MCP2515_RXF0SIDL	0x01
 #define MCP2515_RXF0EID8	0x02
