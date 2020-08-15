@@ -24,6 +24,8 @@ typedef union {
 #define dEXTENDED_CAN_MSG_ID_2_0B 2
 
 bool CANSPI_Initialize(void);
+bool CANSPI_Init_Mask(uint8_t num, uint8_t ext, uint32_t id);
+bool CANSPI_Init_Filter(uint8_t num, uint8_t ext, uint32_t id);
 uint8_t CANSPI_Transmit(uCAN_MSG *tempCanMsg);
 uint8_t CANSPI_Receive(uCAN_MSG *tempCanMsg);
 uint8_t CANSPI_messagesInBuffer(void);

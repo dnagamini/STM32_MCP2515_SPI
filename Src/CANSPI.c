@@ -124,8 +124,93 @@ bool CANSPI_Initialize(void)
   return true;
 }
 
+/* CAN SPI Initialize Mask */
+bool CANSPI_Init_Mask(uint8_t num, uint8_t ext, uint32_t ulData)
+{
+	idReg.tempSIDH = 0;
+	idReg.tempSIDL = 0;
+	idReg.tempEID8 = 0;
+	idReg.tempEID0 = 0;
+
+	/* Set Configuration Mode */
+	if(!MCP2515_SetConfigMode()){
+		return false;
+	}
+
+	convertCANid2Reg(ulData, ext, &idReg);
+
+	if(num == 0){
+		MCP2515_WriteByteSequence(MCP2515_RXM0SIDH, MCP2515_RXM0EID0, &(idReg.tempSIDH));
+	}else if(num == 1){
+		MCP2515_WriteByteSequence(MCP2515_RXM1SIDH, MCP2515_RXM1EID0, &(idReg.tempSIDH));
+	}else{
+		return false;
+	}
+
+	/* Set Normal Mode */
+	if(!MCP2515_SetNormalMode()){
+		return false;
+	}
+
+	return true;
+}
+
+/* CAN SPI Initialize Filter */
+bool CANSPI_Init_Filter(uint8_t num, uint8_t ext, uint32_t ulData)
+{
+	idReg.tempSIDH = 0;
+	idReg.tempSIDL = 0;
+	idReg.tempEID8 = 0;
+	idReg.tempEID0 = 0;
+
+	/* Set Configuration Mode */
+	if(!MCP2515_SetConfigMode()){
+		return false;
+	}
+
+	convertCANid2Reg(ulData, ext, &idReg);
+
+	switch(num){
+		case 0:
+			MCP2515_WriteByteSequence(MCP2515_RXF0SIDH, MCP2515_RXF0EID0, &(idReg.tempSIDH));
+			break;
+
+		case 1:
+			MCP2515_WriteByteSequence(MCP2515_RXF1SIDH, MCP2515_RXF1EID0, &(idReg.tempSIDH));
+			break;
+
+		case 2:
+			MCP2515_WriteByteSequence(MCP2515_RXF2SIDH, MCP2515_RXF2EID0, &(idReg.tempSIDH));
+			break;
+
+		case 3:
+			MCP2515_WriteByteSequence(MCP2515_RXF3SIDH, MCP2515_RXF3EID0, &(idReg.tempSIDH));
+			break;
+
+		case 4:
+			MCP2515_WriteByteSequence(MCP2515_RXF4SIDH, MCP2515_RXF4EID0, &(idReg.tempSIDH));
+			break;
+
+		case 5:
+			MCP2515_WriteByteSequence(MCP2515_RXF5SIDH, MCP2515_RXF5EID0, &(idReg.tempSIDH));
+			break;
+
+		default:
+			return false;
+	}
+
+	/* Set Normal Mode */
+	if(!MCP2515_SetNormalMode()){
+		return false;
+	}
+
+	return true;
+}
+
+
 /* CAN Send Message */
-uint8_t CANSPI_Transmit(uCAN_MSG *tempCanMsg){
+uint8_t CANSPI_Transmit(uCAN_MSG *tempCanMsg)
+{
   uint8_t returnValue = 0;
   
   idReg.tempSIDH = 0;

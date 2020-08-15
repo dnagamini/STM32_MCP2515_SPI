@@ -89,19 +89,37 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	}
 }
 
-void process_bluetooth_command(){
+void process_bluetooth_command(uint8_t *buffer, uint8_t lenght){
 
-	HAL_UART_Transmit(&huart1, uart_buffer_rx_data, uart_buffer_pos, UART_TIMEOUT); // echo to user
+	HAL_UART_Transmit(&huart1, buffer, lenght, UART_TIMEOUT); // echo to user
 	HAL_Delay(10);
-	uart_buffer_pos = 0;
 
-	if(strncmp(uart_buffer_rx_data, "#liga", 4) == 0){
+	if(memcmp(buffer, "#liga", strlen("#liga")) == 0){
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		HAL_UART_Transmit(&huart1, "ligado", 6, 100);
+
+		uint8_t user_message[20] = "ligado";
+		HAL_UART_Transmit(&huart1, user_message, 20, 100);
 	}
 
-	HAL_Delay(1000);
-	uart_buffer_rx_data[0] = '\0';
+	if(memcmp(buffer, "#mask", strlen("#mask")) == 0){
+		uint8_t aux_num = (uint8_t)buffer[5] - '0';
+		uint8_t aux_ext = (uint8_t)buffer[6] - '0';
+		char aux_hex[8] = "";
+		strncpy(aux_hex, (char*)buffer + strlen("#maskXX"), 8);
+		uint32_t aux_ulData = strtol(aux_hex, NULL, 16);
+
+		if(CANSPI_Init_Mask(aux_num, aux_ext, aux_ulData)){
+			uint8_t user_message[20] = "";
+			sprintf((char*)user_message, "setmask%lX", aux_ulData);
+			HAL_UART_Transmit(&huart1, user_message, 20, 100);
+		}
+		else{
+			uint8_t user_message[20] = "failed to set mask";
+			HAL_UART_Transmit(&huart1, user_message, 20, 100);
+		}
+	}
+
+	HAL_Delay(5000);
 }
 
 /* USER CODE END 0 */
@@ -138,7 +156,14 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  CANSPI_Initialize();
+  if(CANSPI_Initialize()){
+	  uint8_t user_message[20] = "init CAN SPI ok";
+	  HAL_UART_Transmit(&huart1, user_message, 20, UART_TIMEOUT);
+  }
+  else{
+	  uint8_t user_message[20] = "init CAN SPI failed";
+	  HAL_UART_Transmit(&huart1, user_message, 20, UART_TIMEOUT);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -147,45 +172,46 @@ int main(void)
   {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
-
-
 	  if(command_received == 1){
 		  command_received = 0;
-		  process_bluetooth_command();
+		  process_bluetooth_command(uart_buffer_rx_data, uart_buffer_pos);
+		  uart_buffer_pos = 0;
+		  uart_buffer_rx_data[0] = '\0';
 		  receive_command_mode = 0;
 	  }
 
 	  if(receive_command_mode == 0){
+		  // check for CAN BUS receive
 		  if(CANSPI_Receive(&rxMessage)){
-			  uint8_t can_receive_buffer_id[20];
-			  uint8_t can_receive_buffer_data[20];
+			  uint8_t can_receive_buffer_id[20] = "";
+			  uint8_t can_receive_buffer_data[20] = "";
 			  uint8_t aux = 0;
-			  sprintf(can_receive_buffer_id, "ID%lX", rxMessage.frame.id);
-			  HAL_UART_Transmit(&huart1, can_receive_buffer_id, 6, UART_TIMEOUT);
+			  snprintf((char*)can_receive_buffer_id, 10, "ID%lX", rxMessage.frame.id);
+			  HAL_UART_Transmit(&huart1, can_receive_buffer_id, sizeof(can_receive_buffer_id), UART_TIMEOUT);
 			  HAL_Delay(10);
-			  aux = sprintf(can_receive_buffer_data, "DATA%02X", rxMessage.frame.data0);
-			  aux = aux + sprintf(can_receive_buffer_data + aux, "%02X", rxMessage.frame.data1);
-			  aux = aux + sprintf(can_receive_buffer_data + aux, "%02X", rxMessage.frame.data2);
-			  aux = aux + sprintf(can_receive_buffer_data + aux, "%02X", rxMessage.frame.data3);
-			  aux = aux + sprintf(can_receive_buffer_data + aux, "%02X", rxMessage.frame.data4);
-			  aux = aux + sprintf(can_receive_buffer_data + aux, "%02X", rxMessage.frame.data5);
-			  aux = aux + sprintf(can_receive_buffer_data + aux, "%02X", rxMessage.frame.data6);
-			  aux = aux + sprintf(can_receive_buffer_data + aux, "%02X", rxMessage.frame.data7);
-			  HAL_UART_Transmit(&huart1, can_receive_buffer_data, 20, UART_TIMEOUT);
+			  aux = sprintf((char*)can_receive_buffer_data, "DATA%02X", rxMessage.frame.data0);
+			  aux = aux + sprintf((char*)can_receive_buffer_data + aux, "%02X", rxMessage.frame.data1);
+			  aux = aux + sprintf((char*)can_receive_buffer_data + aux, "%02X", rxMessage.frame.data2);
+			  aux = aux + sprintf((char*)can_receive_buffer_data + aux, "%02X", rxMessage.frame.data3);
+			  aux = aux + sprintf((char*)can_receive_buffer_data + aux, "%02X", rxMessage.frame.data4);
+			  aux = aux + sprintf((char*)can_receive_buffer_data + aux, "%02X", rxMessage.frame.data5);
+			  aux = aux + sprintf((char*)can_receive_buffer_data + aux, "%02X", rxMessage.frame.data6);
+			  aux = aux + sprintf((char*)can_receive_buffer_data + aux, "%02X", rxMessage.frame.data7);
+			  HAL_UART_Transmit(&huart1, can_receive_buffer_data, sizeof(can_receive_buffer_data), UART_TIMEOUT);
 			  HAL_Delay(10);
 		  }
-
+		  // check for uart bluetooth receive
 		  if(USART1->SR & USART_SR_RXNE){ // if UART RX is not empty
-			  HAL_UART_Transmit(&huart1, "STM32 Listening ...", 19, UART_TIMEOUT);
+			  uint8_t user_message[20] = "STM32 Listening ...";
+			  HAL_UART_Transmit(&huart1, user_message, 20, UART_TIMEOUT);
 			  receive_command_mode = 1; // stop CAN
 			  HAL_UART_Receive_IT(&huart1, &uart_rx_data, 1); // call Interrupt
 		  }
 	  }
 
-
-  }
+  } // end while
   /* USER CODE END 3 */
-}
+} // end main
 
 /**
   * @brief System Clock Configuration
