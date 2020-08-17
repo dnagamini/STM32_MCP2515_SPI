@@ -1,0 +1,41 @@
+
+1) #
+2) command
+3) *
+
+#maskXYZZZZZZZZ*
+
+X = mask register (0 , 1)
+Y = standard or extended mode (0 , 1)
+Z = hexadecimal (00 00 00 00 - 1F FF FF FF)	
+ 
+#filtXYZZZZZZZZ*
+
+X = filter register (0 - 5)
+Y = standard or extended mode (0 , 1)
+Z = hexadecimal (00 00 00 00 - 1F FF FF FF)
+
+#bidXYZZZZZZZZ*
+
+X = buffer (0 - 9)
+Y = stardard or extended mode (0 , 1)
+Z = id hexadecimal (00 00 00 00 - 1F FF FF FF)
+
+#bdtXYYYYYYYYYYYYYYYY*
+
+X = buffer (0 - 9)
+Y = data hexadecimal (00 00 00 00 00 00 00 00 - FF FF FF FF FF FF FF FF)
+
+#addX
+
+X = buffer to be sent
+
+#timeX*
+
+#cansndX*
+
+X = stop or start CAN send (0 , 1)
+
+#canrcvX*
+
+X = stop or start CAN receive (0 , 1)
