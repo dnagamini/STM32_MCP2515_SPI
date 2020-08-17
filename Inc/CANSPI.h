@@ -20,10 +20,14 @@ typedef union {
   uint8_t array[14];
 } uCAN_MSG;
 
-#define dSTANDARD_CAN_MSG_ID_2_0B 1
-#define dEXTENDED_CAN_MSG_ID_2_0B 2
+#define CMD_STANDARD_CAN_MSG_ID 0
+#define CMD_EXTENDED_CAN_MSG_ID 1
+
+#define EXTENDED_CAN_MSG_ID_2_0B 2
 
 bool CANSPI_Initialize(void);
+bool CANSPI_Init_Mask(uint8_t num, uint8_t ext, uint32_t id);
+bool CANSPI_Init_Filter(uint8_t num, uint8_t ext, uint32_t id);
 uint8_t CANSPI_Transmit(uCAN_MSG *tempCanMsg);
 uint8_t CANSPI_Receive(uCAN_MSG *tempCanMsg);
 uint8_t CANSPI_messagesInBuffer(void);
