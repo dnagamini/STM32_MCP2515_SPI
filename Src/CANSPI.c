@@ -279,15 +279,15 @@ uint8_t CANSPI_Receive(uCAN_MSG *tempCanMsg)
     }
     
     /* Extended Type */
-    if (rxStatus.msgType == dEXTENDED_CAN_MSG_ID_2_0B)
+    if (rxStatus.msgType == EXTENDED_CAN_MSG_ID_2_0B)
     {
-      tempCanMsg->frame.idType = (uint8_t) dEXTENDED_CAN_MSG_ID_2_0B;
+      tempCanMsg->frame.idType = (uint8_t) CMD_EXTENDED_CAN_MSG_ID;
       tempCanMsg->frame.id = convertReg2ExtendedCANid(rxReg.RXBnEID8, rxReg.RXBnEID0, rxReg.RXBnSIDH, rxReg.RXBnSIDL);
     } 
     else 
     {
       /* Standard Type */
-      tempCanMsg->frame.idType = (uint8_t) dSTANDARD_CAN_MSG_ID_2_0B;
+      tempCanMsg->frame.idType = (uint8_t) CMD_STANDARD_CAN_MSG_ID;
       tempCanMsg->frame.id = convertReg2StandardCANid(rxReg.RXBnSIDH, rxReg.RXBnSIDL);
     }
     
@@ -411,7 +411,7 @@ static uint32_t convertReg2StandardCANid(uint8_t tempRXBn_SIDH, uint8_t tempRXBn
 static void convertCANid2Reg(uint32_t tempPassedInID, uint8_t canIdType, id_reg_t *passedIdReg){
   uint8_t wipSIDL = 0;
   
-  if (canIdType == dEXTENDED_CAN_MSG_ID_2_0B) 
+  if (canIdType == CMD_EXTENDED_CAN_MSG_ID)
   {
     //EID0
     passedIdReg->tempEID0 = 0xFF & tempPassedInID;
