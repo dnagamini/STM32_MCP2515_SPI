@@ -207,7 +207,6 @@ bool CANSPI_Init_Filter(uint8_t num, uint8_t ext, uint32_t ulData)
 	return true;
 }
 
-
 /* CAN Send Message */
 uint8_t CANSPI_Transmit(uCAN_MSG *tempCanMsg)
 {
