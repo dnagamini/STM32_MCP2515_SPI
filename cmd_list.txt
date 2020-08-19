@@ -15,26 +15,11 @@ X = filter register (0 - 5)
 Y = standard or extended mode (0 , 1)
 Z = hexadecimal (00 00 00 00 - 1F FF FF FF)
 
-#bidXYZZZZZZZZ*
+#sendXYYYYYYYYZZZZZZZZZZZZZZZZ*
 
-X = buffer (0 - 9)
-Y = stardard or extended mode (0 , 1)
-Z = id hexadecimal (00 00 00 00 - 1F FF FF FF)
-
-#bdtXYYYYYYYYYYYYYYYY*
-
-X = buffer (0 - 9)
-Y = data hexadecimal (00 00 00 00 00 00 00 00 - FF FF FF FF FF FF FF FF)
-
-#addX
-
-X = buffer to be sent
-
-#timeX*
-
-#cansndX*
-
-X = stop or start CAN send (0 , 1)
+X = stardard or extended mode (0 , 1)
+Y = id hexadecimal (00 00 00 00 - 1F FF FF FF)
+Z = data hexadecimal (00 00 00 00 00 00 00 00 - FF FF FF FF FF FF FF FF)
 
 #canrcvX*
 
